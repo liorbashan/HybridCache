@@ -24,7 +24,7 @@ namespace HybridCache
             if (memcachedClient != null)
             {
                 services.AddSingleton<IMemcachedClient>(memcachedClient);
-                services.AddSingleton<IDistributedCache, MemcachedCacheService>();
+                services.AddSingleton<IDistributedCacheProvider, MemcachedCacheService>();
             }
             else
             {

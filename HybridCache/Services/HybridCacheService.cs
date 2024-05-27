@@ -9,10 +9,10 @@ namespace HybridCache.Services
     public class HybridCacheService : IMultiLayerCache
     {
         private readonly MemoryCacheService _memoryCacheService;
-        private readonly IDistributedCache? _distributedCacheService;
+        private readonly IDistributedCacheProvider? _distributedCacheService;
         private readonly bool _isDistributedCacheAvailable;
 
-        public HybridCacheService(MemoryCacheService memoryCacheService, IDistributedCache? distributedCacheService = null)
+        public HybridCacheService(MemoryCacheService memoryCacheService, IDistributedCacheProvider? distributedCacheService = null)
         {
             _memoryCacheService = memoryCacheService;
             _distributedCacheService = distributedCacheService;
@@ -74,8 +74,8 @@ namespace HybridCache.Services
             try
             {
                 SetToMemory(key, value, memoryCacheDuration);
-                var serializedData = JsonSerializer.SerializeToUtf8Bytes(value);
-                await SetToDistribution(key, serializedData, distributedCacheDuration);
+                //var serializedData = JsonSerializer.SerializeToUtf8Bytes(value);
+                await SetToDistribution(key, value, distributedCacheDuration);
             }
             catch (Exception)
             {
@@ -113,7 +113,7 @@ namespace HybridCache.Services
 
             try
             {
-                var cachedData = await _distributedCacheService!.GetAsync(key);
+                var cachedData = await _distributedCacheService!.GetAsync<string>(key);
                 if (cachedData != null)
                 {
                     var value = JsonSerializer.Deserialize<T>(cachedData);
@@ -127,7 +127,7 @@ namespace HybridCache.Services
             }
         }
 
-        private async Task SetToDistribution(string key, byte[] value, TimeSpan? distributedCacheDuration = null)
+        private async Task SetToDistribution(string key, object value, TimeSpan? distributedCacheDuration = null)
         {
             if (!_isDistributedCacheAvailable) return;
 
