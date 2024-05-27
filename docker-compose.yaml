@@ -1,0 +1,16 @@
+services:
+  memcached:
+    image: memcached:latest
+    container_name: memcached
+    ports:
+      - "11211:11211"
+
+  phpmemadmin:
+    image: oliverkra/phpmemadmin:latest
+    container_name: phpmemadmin
+    ports:
+      - "8080:80"
+    depends_on:
+      - memcached
+    environment:
+      - MEMCACHE_HOSTS=memcached:11211
